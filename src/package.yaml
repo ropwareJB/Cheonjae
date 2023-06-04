@@ -1,10 +1,10 @@
 name:                cheonjae
 version:             0.1.0.0
-github:              "githubuser/cheonjae"
+github:              "ropwareJB/cheonjae"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2023 Author name here"
+author:              "Joshua Brown"
+maintainer:          "gh@ropware.com"
+copyright:           "2023 Josh Brown"
 
 extra-source-files:
 - README.md
@@ -21,6 +21,16 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- req
+- aeson
+- bytestring
+- utf8-string
+- wreq
+- lens
+- containers
+- http-client
+- http-client-tls
+- tls
 
 ghc-options:
 - -Wall
@@ -37,7 +47,7 @@ library:
   source-dirs: src
 
 executables:
-  cheonjae-exe:
+  cheonjae:
     main:                Main.hs
     source-dirs:         app
     ghc-options:

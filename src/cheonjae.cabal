@@ -7,11 +7,11 @@ cabal-version: 1.12
 name:           cheonjae
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/cheonjae#readme>
-homepage:       https://github.com/githubuser/cheonjae#readme
-bug-reports:    https://github.com/githubuser/cheonjae/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2023 Author name here
+homepage:       https://github.com/ropwareJB/cheonjae#readme
+bug-reports:    https://github.com/ropwareJB/cheonjae/issues
+author:         Joshua Brown
+maintainer:     gh@ropware.com
+copyright:      2023 Josh Brown
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -21,7 +21,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/cheonjae
+  location: https://github.com/ropwareJB/cheonjae
 
 library
   exposed-modules:
@@ -32,10 +32,20 @@ library
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , http-client
+    , http-client-tls
+    , lens
+    , req
+    , tls
+    , utf8-string
+    , wreq
   default-language: Haskell2010
 
-executable cheonjae-exe
+executable cheonjae
   main-is: Main.hs
   other-modules:
       Paths_cheonjae
@@ -43,8 +53,18 @@ executable cheonjae-exe
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
+    , bytestring
     , cheonjae
+    , containers
+    , http-client
+    , http-client-tls
+    , lens
+    , req
+    , tls
+    , utf8-string
+    , wreq
   default-language: Haskell2010
 
 test-suite cheonjae-test
@@ -56,6 +76,16 @@ test-suite cheonjae-test
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
+    , bytestring
     , cheonjae
+    , containers
+    , http-client
+    , http-client-tls
+    , lens
+    , req
+    , tls
+    , utf8-string
+    , wreq
   default-language: Haskell2010
