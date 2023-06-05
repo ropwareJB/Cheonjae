@@ -16,3 +16,16 @@ cd ./bin
 export TANDEM_SESSION="AAAAA...."
 ./cheonjae
 ```
+
+### TODO
+
+- Inputs
+	- Monitor Tandem
+		- Continously monitor conversation list
+		- Continuously monitor conversation
+	- Monitor HelloTalk
+
+- Outputs
+	- Ingest into Anki
+	- Ingest into Quizlet
+
