@@ -11,6 +11,10 @@ import Data.Aeson.Types
 import Data.ByteString as BS
 import Data.ByteString.UTF8 as BSU
 import Data.Map as Map
+import           Data.Text (Text)
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
+import qualified Text.Hex as T
 import Network.HTTP.Req
 import Network.HTTP.Client hiding (responseBody)
 import Network.HTTP.Client.TLS
@@ -19,9 +23,12 @@ import System.Environment
 
 import Tandem.Model
 
-sessionToken :: IO String
+sessionToken :: IO Text
 sessionToken = do
-  getEnv "TANDEM_SESSION"
+  getEnv "TANDEM_SESSION" >>= return . T.pack
+
+decodeToken :: Text -> Maybe ByteString
+decodeToken = T.decodeHex
 
 myManager :: IO Manager
 myManager = do
@@ -42,7 +49,7 @@ main = do
       req
         POST
         (https "web-apis.tandem.net" /: "api" /: "app")
-        (ReqBodyBs $ BSU.fromString session)
+        (ReqBodyBs $ T.encodeUtf8 session)
         jsonResponse
         mempty
 

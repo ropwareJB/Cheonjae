@@ -12,7 +12,7 @@ bug-reports:    https://github.com/ropwareJB/cheonjae/issues
 author:         Joshua Brown
 maintainer:     gh@ropware.com
 copyright:      2023 Josh Brown
-license:        BSD3
+license:        GPLv3
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
@@ -37,6 +37,7 @@ library
     , base >=4.7 && <5
     , bytestring
     , containers
+    , hex-text
     , http-client
     , http-client-tls
     , lens
@@ -60,6 +61,7 @@ executable cheonjae
     , bytestring
     , cheonjae
     , containers
+    , hex-text
     , http-client
     , http-client-tls
     , lens
@@ -84,6 +86,7 @@ test-suite cheonjae-test
     , bytestring
     , cheonjae
     , containers
+    , hex-text
     , http-client
     , http-client-tls
     , lens

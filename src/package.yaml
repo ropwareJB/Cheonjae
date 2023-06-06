@@ -1,7 +1,7 @@
 name:                cheonjae
 version:             0.1.0.0
 github:              "ropwareJB/cheonjae"
-license:             BSD3
+license:             GPLv3
 author:              "Joshua Brown"
 maintainer:          "gh@ropware.com"
 copyright:           "2023 Josh Brown"
@@ -32,6 +32,7 @@ dependencies:
 - http-client-tls
 - tls
 - text
+- hex-text
 
 ghc-options:
 - -Wall
