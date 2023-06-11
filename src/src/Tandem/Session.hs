@@ -19,3 +19,4 @@ decodeToken = T.decodeHex
 
 encodeToBs :: Session -> ByteString
 encodeToBs (Session t) = T.encodeUtf8 t
+

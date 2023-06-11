@@ -30,11 +30,17 @@ wrapException req ioOp = do
   --- Nothing for now.
   ioOp
 
+endpointListChats :: Text
+endpointListChats = "v1/messages#list"
+
+endpointGetChatMessages :: Text
+endpointGetChatMessages = "v1/messages#get"
+
 postToApi :: Session -> IO (Either String ResponseEnvelope)
 postToApi session = do
   manager <- myManager
   runReq defaultHttpConfig { httpConfigAltManager = Just manager } $ do
-    session <- liftIO $ Session.getSession--  liftIO sessionToken
+    session <- liftIO Session.getSession
 
     r <-
       req
