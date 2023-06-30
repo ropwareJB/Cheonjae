@@ -27,6 +27,7 @@ library
   exposed-modules:
       Args
       Lib
+      OpenAPI.GPT
       Tandem.Api
       Tandem.Model
       Tandem.Session
