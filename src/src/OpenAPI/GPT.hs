@@ -3,16 +3,17 @@
 {-# LANGUAGE OverloadedStrings #-}
 module OpenAPI.GPT where
 
+import           Control.Exception (catch, throwIO, SomeException)
+import           Control.Monad.IO.Class
 import           Data.Aeson
 import           Data.Aeson (Value)
 import           Data.Aeson.Types
-import           Control.Exception (catch, throwIO, SomeException)
-import           Control.Monad.IO.Class
+import           Data.ByteString as BS
+import           Data.ByteString.UTF8 as BSU
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
-import           Data.ByteString as BS
-import           Data.ByteString.UTF8 as BSU
+import qualified Data.Maybe as Maybe
 import           GHC.Generics
 import           Network.HTTP.Req
 import           Network.HTTP.Client hiding (responseBody)
@@ -51,9 +52,12 @@ mintReq korean =
   CompletionRequest
     { model = gptModel
     , prompt = "What does the following korean mean in english? If you can translate it, respond with \"The text means: \" and then the translation. If you cannot translate it, only respond with \"Translation failed\" and nothing else. \n\n" <> korean
-    , max_tokens = 7
+    , max_tokens = 200
     , temperature = 0
     }
+
+successDelimiter :: Text
+successDelimiter = "The text means: "
 
 data CompletionResponse =
   CompletionResponse
@@ -105,12 +109,10 @@ instance FromJSON CompletionResponseChoice where
       <*> v .: "logprobs"
       <*> v .: "finish_reason"
 
-postToApi :: IO (Either String CompletionResponse)
+postToApi :: IO (Either String Text)
 postToApi = do
   manager <- myManager
   runReq defaultHttpConfig { httpConfigAltManager = Just manager } $ do
-    -- session <- liftIO Session.getSession
-    --
     key <- liftIO apiKey
 
     r <-
@@ -124,7 +126,9 @@ postToApi = do
         )
 
     let
-      ei_responseEnv = parseEither parseJSON $ responseBody r :: Either String CompletionResponse
+      ei_responseEnv =
+        (parseEither parseJSON $ responseBody r :: Either String CompletionResponse)
+        >>= parseOutTranslation
     case ei_responseEnv of
       Left e -> liftIO $ do
         putStrLn "Failed to parse!"
@@ -134,3 +138,19 @@ postToApi = do
         putStrLn $ show v
 
     return ei_responseEnv
+
+parseOutTranslation :: CompletionResponse -> Either String Text
+parseOutTranslation completionResponse =
+  case completion_choices completionResponse of
+    [] ->
+      Left "No choices returned"
+    (c:cs) ->
+      let
+        (delim, translation) = T.breakOn successDelimiter $ choice_text c
+      in
+      case translation of
+        "" -> failedTranslation
+        _  -> Maybe.maybe failedTranslation Right $ T.stripPrefix successDelimiter translation
+    where
+      failedTranslation = Left "Translation failed"
+
