@@ -144,13 +144,12 @@ parseOutTranslation completionResponse =
   case completion_choices completionResponse of
     [] ->
       Left "No choices returned"
-    (c:cs) ->
-      let
-        (delim, translation) = T.breakOn successDelimiter $ choice_text c
-      in
-      case translation of
-        "" -> failedTranslation
-        _  -> Maybe.maybe failedTranslation Right $ T.stripPrefix successDelimiter translation
+    (c:_) ->
+      case T.breakOn successDelimiter $ choice_text c of
+        (_, "") ->
+          failedTranslation
+        (_, translation) ->
+          Maybe.maybe failedTranslation Right $ T.stripPrefix successDelimiter translation
     where
       failedTranslation = Left "Translation failed"
 

@@ -1,7 +1,7 @@
 
 ## Cheonjae
 
-A daemon for monitoring language exchange applications and adding new vocabulary to a data store, such as Anki.
+A daemon for monitoring an input source, automatically translating it via GPT, and adding the new source-translation pair to a language learning data store, such as Anki.
 
 ### Building
 
@@ -13,17 +13,14 @@ make bin
 
 ```
 cd ./bin
-export TANDEM_SESSION="AAAAA...."
-./cheonjae
+export GPT_KEY="sk-...."
+./cheonjae -i ./someText.txt
 ```
 
 ### TODO
 
 - Inputs
-	- Monitor Tandem
-		- Continously monitor conversation list
-		- Continuously monitor conversation
-	- Monitor HelloTalk
+	- Text File
 
 - Outputs
 	- Ingest into Anki
