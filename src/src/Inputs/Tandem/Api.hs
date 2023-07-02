@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Tandem.Api where
+module Inputs.Tandem.Api where
 
 import           Data.Aeson
 import           Data.Aeson (Value)
@@ -16,9 +16,9 @@ import           Network.HTTP.Client hiding (responseBody)
 import           Network.HTTP.Client.TLS
 import           Network.TLS
 
-import           Tandem.Session (Session)
-import qualified Tandem.Session as Session
-import           Tandem.Model as Model
+import           Inputs.Tandem.Session (Session)
+import qualified Inputs.Tandem.Session as Session
+import           Inputs.Tandem.Model as Model
 
 myManager :: IO Manager
 myManager = do

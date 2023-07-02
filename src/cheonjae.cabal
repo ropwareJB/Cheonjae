@@ -26,11 +26,13 @@ source-repository head
 library
   exposed-modules:
       Args
+      Inputs.FlatFile
+      Inputs.Tandem.Api
+      Inputs.Tandem.Model
+      Inputs.Tandem.Session
       Lib
-      OpenAPI.GPT
-      Tandem.Api
-      Tandem.Model
-      Tandem.Session
+      Stores.Anki.Anki
+      Translator.OpenAPI.GPT
   other-modules:
       Paths_cheonjae
   hs-source-dirs:
@@ -47,6 +49,7 @@ library
     , http-client-tls
     , lens
     , req
+    , sqlite-simple
     , text
     , tls
     , utf8-string
@@ -72,6 +75,7 @@ executable cheonjae
     , http-client-tls
     , lens
     , req
+    , sqlite-simple
     , text
     , tls
     , utf8-string
@@ -98,6 +102,7 @@ test-suite cheonjae-test
     , http-client-tls
     , lens
     , req
+    , sqlite-simple
     , text
     , tls
     , utf8-string

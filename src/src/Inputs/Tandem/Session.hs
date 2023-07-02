@@ -1,4 +1,4 @@
-module Tandem.Session where
+module Inputs.Tandem.Session where
 
 import           Data.Text (Text)
 import qualified Data.Text as T

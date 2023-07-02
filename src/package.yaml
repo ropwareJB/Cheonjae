@@ -34,6 +34,7 @@ dependencies:
 - tls
 - text
 - hex-text
+- sqlite-simple
 
 ghc-options:
 - -Wall

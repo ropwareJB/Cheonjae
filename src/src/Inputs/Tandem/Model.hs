@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Tandem.Model where
+module Inputs.Tandem.Model where
 
 import GHC.Generics
 import Data.Aeson

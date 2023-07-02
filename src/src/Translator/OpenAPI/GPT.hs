@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE OverloadedStrings #-}
-module OpenAPI.GPT where
+module Translator.OpenAPI.GPT where
 
 import           Control.Exception (catch, throwIO, SomeException)
 import           Control.Monad.IO.Class
