@@ -1,15 +1,13 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Translator.OpenAPI.GPT where
+module Translator.OpenAPI.GPT
+  (postToApi)
+  where
 
-import           Control.Exception (catch, throwIO, SomeException)
 import           Control.Monad.IO.Class
 import           Data.Aeson
-import           Data.Aeson (Value)
 import           Data.Aeson.Types
-import           Data.ByteString as BS
-import           Data.ByteString.UTF8 as BSU
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
@@ -18,7 +16,6 @@ import           GHC.Generics
 import           Network.HTTP.Req
 import           Network.HTTP.Client hiding (responseBody)
 import           Network.HTTP.Client.TLS
-import           Network.TLS
 import           System.Environment
 
 myManager :: IO Manager
@@ -27,7 +24,7 @@ myManager = do
     tlsManagerSettings { managerWrapException = wrapException }
 
 wrapException :: Request -> IO a -> IO a
-wrapException req ioOp = do
+wrapException _req ioOp = do
   --- Nothing for now.
   ioOp
 
