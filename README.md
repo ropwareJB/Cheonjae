@@ -22,7 +22,13 @@ export GPT_KEY="sk-...."
 - Inputs
 	- Text File
 
+- Translation
+	- GPT
+		- Detect out of credit
+		- Detect msg too complex (insufficient tokens)
+
 - Outputs
 	- Ingest into Anki
 	- Ingest into Quizlet
+
 

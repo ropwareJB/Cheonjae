@@ -106,8 +106,8 @@ instance FromJSON CompletionResponseChoice where
       <*> v .: "logprobs"
       <*> v .: "finish_reason"
 
-postToApi :: IO (Either String Text)
-postToApi = do
+postToApi :: Text -> IO (Either String Text)
+postToApi card = do
   manager <- myManager
   runReq defaultHttpConfig { httpConfigAltManager = Just manager } $ do
     key <- liftIO apiKey
@@ -116,7 +116,7 @@ postToApi = do
       req
         POST
         (https "api.openai.com" /: "v1" /: "completions")
-        (ReqBodyJson $ mintReq "다른 언어로 대화하는게")
+        (ReqBodyJson $ mintReq card)
         jsonResponse
         (mempty
         <> header "Authorization" (T.encodeUtf8 $ "Bearer " <> key)
