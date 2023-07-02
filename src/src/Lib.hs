@@ -20,15 +20,13 @@ main args@ArgsDigest{} = do
   case partioned_ei of
     Left e ->
       putStrLn e
-    Right (_, toBeTranslated) -> do
-      printf "Translating %d cards...\n" $ length toBeTranslated
-      mapM_ (printf "%s\n") toBeTranslated
-
+    Right (notesAlreadyPresent, notesToBeTranslated) -> do
+      printf "Notes already present: %d\n" $ length notesAlreadyPresent
+      printf "Translating %d cards...\n" $ length notesToBeTranslated
+      mapM_ (printf "%s\n") notesToBeTranslated
 
   -- translations <- mapM ChatGPT.postToApi cards
   -- TODO: Store successful translations
   -- TODO: Store unsuccessful translatinos somewhere + log
-
-
   return ()
 
