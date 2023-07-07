@@ -8,6 +8,7 @@ digest :: Args
 digest =
   ArgsDigest
     { input = ""
+    , ankiStore = ""
     } &= name "digest"
 
 mode :: Mode (CmdArgs Args)

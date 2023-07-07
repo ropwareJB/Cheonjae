@@ -8,6 +8,7 @@ import           System.Console.CmdArgs
 data Args
   = ArgsDigest
     { input :: String
+    , ankiStore :: String
     }
   deriving (Show, Data, Typeable)
 

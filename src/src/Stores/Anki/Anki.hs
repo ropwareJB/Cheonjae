@@ -7,6 +7,7 @@ module Stores.Anki.Anki
   , Stores.Anki.Anki.close
   , Stores.Anki.Anki.partition
   , readNotes
+  , storeNewNote
   ) where
 
 import           GHC.Generics
@@ -17,6 +18,8 @@ import           Data.List
 import           Data.Maybe as Maybe
 import           Database.SQLite.Simple as SQL
 import           Database.SQLite.Simple.FromRow
+
+import qualified Model
 
 data AnkiStore
   = AnkiStoreClosed
@@ -79,3 +82,10 @@ readNotes s@AnkiStoreOpen{} = do
   mapM_ (print . show) r
   return r
 
+storeNewNote :: AnkiStore -> Model.MCard -> IO()
+storeNewNote s@AnkiStoreClosed{} _ =
+  -- TODO: Throw / log error
+  return ()
+storeNewNote s@AnkiStoreOpen{} newCard = do
+  -- TODO: store
+  return ()

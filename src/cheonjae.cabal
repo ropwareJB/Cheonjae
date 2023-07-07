@@ -31,6 +31,7 @@ library
       Inputs.Tandem.Model
       Inputs.Tandem.Session
       Lib
+      Model
       Stores.Anki.Anki
       Translator.OpenAPI.GPT
   other-modules:
