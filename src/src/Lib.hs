@@ -15,7 +15,8 @@ import qualified Stores.Anki.Anki as Anki
 main :: Args -> IO ()
 main args@ArgsDigest{} = do
 
-  cards <- InputFlatFile.readCards $ Args.input args
+  -- cards <- InputFlatFile.readCards $ Args.input args
+  cards <- return ["여기에"]
 
   anki <- Anki.open $ Args.ankiStore args
   partioned_ei <- Anki.partition anki cards
@@ -27,23 +28,25 @@ main args@ArgsDigest{} = do
       printf "Translating %d cards...\n" $ length notesToBeTranslated
       mapM_ (printf "%s\n") notesToBeTranslated
 
-      newCards_eis <- mapM
-        (\n -> do
-          back_ei <- ChatGPT.postToApi n
-          return $
-            Either.either
-              (\err -> Left $ (n, err))
-              (\back -> Right $ Model.MCard n back)
-              back_ei
-        )
-        notesToBeTranslated
+      -- newCards_eis <- mapM
+      --   (\n -> do
+      --     back_ei <- ChatGPT.postToApi n
+      --     return $
+      --       Either.either
+      --         (\err -> Left $ (n, err))
+      --         (\back -> Right $ Model.MCard n back)
+      --         back_ei
+      --   )
+      --   notesToBeTranslated
 
+      -- let
+      --   translateSuccesses = Either.rights newCards_eis
+      --   translateFails = Either.lefts newCards_eis
       let
-        translateSuccesses = Either.rights newCards_eis
-        translateFails = Either.lefts newCards_eis
+        translateSuccesses = [Model.MCard "여기에" "Here"]
 
       -- Store successful translations
-      putStrLn $ show newCards_eis
+      -- putStrLn $ show newCards_eis
       success <- mapM (Anki.storeNewNote anki) translateSuccesses
 
       -- TODO: Store unsuccessful translatinos somewhere + log
