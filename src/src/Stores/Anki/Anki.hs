@@ -12,7 +12,11 @@ module Stores.Anki.Anki
   ) where
 
 import           GHC.Generics
+import qualified Codec.Binary.Base91 as Base91
 import           Control.Applicative
+import           Control.Monad.Extra
+import qualified Data.ByteString as BS
+import           Data.Time.Clock.POSIX
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
@@ -21,8 +25,12 @@ import           Data.Maybe as Maybe
 import           Database.SQLite.Simple as SQL
 import           Database.SQLite.Simple.FromRow
 import           Text.Printf
+import           System.Random
 
 import qualified Model
+
+-- For Database structure or field questions, see the following:
+-- https://github.com/ankidroid/Anki-Android/wiki/Database-Structure
 
 data AnkiStore
   = AnkiStoreClosed
@@ -50,6 +58,7 @@ data ModelCard =
     , cardFlags :: Int
     , cardData :: Text
     }
+  deriving (Show, Generic, FromRow, ToRow)
 
 data ModelNote =
   ModelNote
@@ -116,6 +125,23 @@ readLastNote s@AnkiStoreOpen{} = do
     []    -> return Nothing
     (n:_) -> return $ Just n
 
+readLastCard :: AnkiStore -> IO (Maybe ModelCard)
+readLastCard s@AnkiStoreClosed{} =
+  -- TODO: Throw / log error
+  return Nothing
+readLastCard s@AnkiStoreOpen{} = do
+  rs <- query_ (conn s) "SELECT * FROM cards ORDER BY id DESC LIMIT 1" :: IO [ModelCard]
+  case rs of
+    []    -> return Nothing
+    (n:_) -> return $ Just n
+
+-- | Returns a base91-encoded 64bit random number
+-- https://github.com/ankitects/anki/blob/9711044290dad315990f1281b148959068ec5de2/pylib/anki/utils.py#L128
+genGuid64 :: IO Text
+genGuid64 = do
+  rInt <- randomRIO (1, 2^64 - 1) :: IO Int
+  return . Base91.encode $ BS.pack [fromIntegral rInt]
+
 storeNewNote :: AnkiStore -> Model.MCard -> IO()
 storeNewNote s@AnkiStoreClosed{} _ = do
   -- TODO: Throw / log error
@@ -128,16 +154,18 @@ storeNewNote s@AnkiStoreOpen{} newCard = do
   lastNote_myb <- readLastNote s
   mapM
     (\lastNote -> do
+      epochTime <- fmap round getPOSIXTime
+      noteGuid <- genGuid64
       -- Store a standalone Note
       executeNamed
         (conn s)
         "INSERT INTO notes \
           \        (guid, mid, mod, usn, tags, flds, sfld, csum, flags, data) \
           \ VALUES (:guid, :mid, :mod, :usn, :tags, :flds, :sfld, :csum, :flags, :data)"
-          ([ ":guid" := ("" :: T.Text) -- TODO: Generate new GUID
-           , ":mid" := (123 :: Int) -- TODO: Copy from other
-           , ":mod" := (123 :: Int) -- TODO: What is this?
-           , ":usn" := (6 :: Int)
+          ([ ":guid" := (noteGuid :: T.Text)
+           , ":mid" := (noteMid lastNote :: Int) -- ModelID, copied from last Note.
+           , ":mod" := (epochTime :: Int) -- Modification timestamp, epoch seconds
+           , ":usn" := (-1 :: Int) -- Update sequence number for finding diffs when syncing.
            , ":tags" := ("" :: T.Text)
            , ":flds" := (T.pack $ printf "%s\US%s" (Model.front newCard) (Model.back newCard) :: T.Text)
            , ":sfld" := (T.pack $ printf "%s" (Model.front newCard) :: T.Text)
@@ -147,31 +175,34 @@ storeNewNote s@AnkiStoreOpen{} newCard = do
            ])
       insertedNoteId <- lastInsertRowId (conn s)
 
-      -- TODO: Get the last Card in the DB to template off.
-
-      -- Store a Card reference in a Deck that links to our new Note
-      executeNamed
-        (conn s)
-        "INSERT INTO cards \
-          \        (nid, did, ord, mod, usn, type, queue, due, ivl, factor, reps, lapses, left, odue, odid, flags, data) \
-          \ VALUES (:nid, :did, :ord, :mod, :usn, :type, :queue, :due, :ivl, :factor, :reps, :lapses, :left, :odue, :odid, :flags, :data) "
-          ([ ":nid" := insertedNoteId
-           , ":did" := (123 :: Int) -- TODO: Copy from other
-           , ":ord" := (0 :: Int)
-           , ":mod" := (123 :: Int) -- TODO: What is this?
-           , ":usn" := (6 :: Int) -- TODO: What is this?
-           , ":type" := (0 :: Int)
-           , ":queue" := (0 :: Int)
-           , ":due" := (123 :: Int) -- TODO Incrememnt from previous card
-           , ":ivl" := (0 :: Int)
-           , ":factor" := (0 :: Int)
-           , ":reps" := (0 :: Int)
-           , ":lapses" := (0 :: Int)
-           , ":left" := (0 :: Int)
-           , ":odue" := (0 :: Int)
-           , ":flags" := (0 :: Int)
-           , ":data" := ("{}" :: T.Text)
-           ])
+      -- Read the Last Card stored in the DB, and base a new one off of it.
+      whenJustM (readLastCard s)
+        (\lastCard -> do
+          -- Store a Card reference in a Deck that links to our new Note
+          executeNamed
+            (conn s)
+            "INSERT INTO cards \
+              \        (nid, did, ord, mod, usn, type, queue, due, ivl, factor, reps, lapses, left, odue, odid, flags, data) \
+              \ VALUES (:nid, :did, :ord, :mod, :usn, :type, :queue, :due, :ivl, :factor, :reps, :lapses, :left, :odue, :odid, :flags, :data) "
+              ([ ":nid" := insertedNoteId
+               , ":did" := (cardDid lastCard :: Int) -- Copy the Deck ID from the last card
+               , ":ord" := (0 :: Int)
+               , ":mod" := (epochTime :: Int) -- Seconds since epoch
+               , ":usn" := (-1 :: Int)
+               -- Update sequence number. -1 indicates changes that need to be pushed to server.
+               , ":type" := (0 :: Int)
+               , ":queue" := (0 :: Int)
+               , ":due" := (cardDue lastCard + 1 :: Int) -- Increment from last card
+               , ":ivl" := (0 :: Int)
+               , ":factor" := (0 :: Int)
+               , ":reps" := (0 :: Int)
+               , ":lapses" := (0 :: Int)
+               , ":left" := (0 :: Int)
+               , ":odue" := (0 :: Int)
+               , ":flags" := (0 :: Int)
+               , ":data" := ("{}" :: T.Text)
+               ])
+        )
     )
     lastNote_myb
 

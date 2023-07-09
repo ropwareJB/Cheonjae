@@ -42,16 +42,20 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , base91 >=2.1.0
     , bytestring
     , cmdargs
     , containers
+    , extra
     , hex-text
     , http-client
     , http-client-tls
     , lens
+    , random
     , req
     , sqlite-simple
     , text
+    , time
     , tls
     , utf8-string
     , wreq
@@ -67,17 +71,21 @@ executable cheonjae
   build-depends:
       aeson
     , base >=4.7 && <5
+    , base91 >=2.1.0
     , bytestring
     , cheonjae
     , cmdargs
     , containers
+    , extra
     , hex-text
     , http-client
     , http-client-tls
     , lens
+    , random
     , req
     , sqlite-simple
     , text
+    , time
     , tls
     , utf8-string
     , wreq
@@ -94,17 +102,21 @@ test-suite cheonjae-test
   build-depends:
       aeson
     , base >=4.7 && <5
+    , base91 >=2.1.0
     , bytestring
     , cheonjae
     , cmdargs
     , containers
+    , extra
     , hex-text
     , http-client
     , http-client-tls
     , lens
+    , random
     , req
     , sqlite-simple
     , text
+    , time
     , tls
     , utf8-string
     , wreq

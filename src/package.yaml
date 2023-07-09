@@ -35,6 +35,10 @@ dependencies:
 - text
 - hex-text
 - sqlite-simple
+- extra
+- time
+- random
+- base91 >= 2.1.0
 
 ghc-options:
 - -Wall
