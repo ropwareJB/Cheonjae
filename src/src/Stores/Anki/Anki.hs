@@ -55,6 +55,7 @@ data ModelCard =
     , cardLapses :: Int
     , cardLeft :: Int
     , cardOdue :: Int
+    , cardOdid :: Int
     , cardFlags :: Int
     , cardData :: Text
     }
@@ -149,7 +150,7 @@ storeNewNote s@AnkiStoreClosed{} _ = do
   return ()
 storeNewNote s@AnkiStoreOpen{} newCard = do
   -- Retrieve an existing card, to copy attributes from.
-  printf "[+] Storing card! %s" (Model.front newCard)
+  printf "[+] Storing card! %s\n" (Model.front newCard)
 
   lastNote_myb <- readLastNote s
   mapM
@@ -169,7 +170,7 @@ storeNewNote s@AnkiStoreOpen{} newCard = do
            , ":tags" := ("" :: T.Text)
            , ":flds" := (T.pack $ printf "%s\US%s" (Model.front newCard) (Model.back newCard) :: T.Text)
            , ":sfld" := (T.pack $ printf "%s" (Model.front newCard) :: T.Text)
-           , ":csum" := (123 :: Int)
+           , ":csum" := (123 :: Int) -- TODO
            , ":flags" := (0 :: Int)
            , ":data" := ("" :: T.Text)
            ])
@@ -199,6 +200,7 @@ storeNewNote s@AnkiStoreOpen{} newCard = do
                , ":lapses" := (0 :: Int)
                , ":left" := (0 :: Int)
                , ":odue" := (0 :: Int)
+               , ":odid" := (0 :: Int)
                , ":flags" := (0 :: Int)
                , ":data" := ("{}" :: T.Text)
                ])
