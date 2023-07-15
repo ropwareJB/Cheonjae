@@ -39,6 +39,7 @@ dependencies:
 - time
 - random
 - base91 >= 2.1.0
+- binary
 
 ghc-options:
 - -Wall

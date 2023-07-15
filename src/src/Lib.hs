@@ -15,10 +15,9 @@ import qualified Stores.Anki.Anki as Anki
 main :: Args -> IO ()
 main args@ArgsDigest{} = do
 
-  -- cards <- InputFlatFile.readCards $ Args.input args
-  cards <- return ["여기에"]
-
+  cards <- InputFlatFile.readCards $ Args.input args
   anki <- Anki.open $ Args.ankiStore args
+
   partioned_ei <- Anki.partition anki cards
   case partioned_ei of
     Left e ->
@@ -26,28 +25,26 @@ main args@ArgsDigest{} = do
     Right (notesAlreadyPresent, notesToBeTranslated) -> do
       printf "Notes already present: %d\n" $ length notesAlreadyPresent
       printf "Translating %d cards...\n" $ length notesToBeTranslated
-      mapM_ (printf "%s\n") notesToBeTranslated
+      mapM_ (printf "\t- %s\n") notesToBeTranslated
 
-      -- newCards_eis <- mapM
-      --   (\n -> do
-      --     back_ei <- ChatGPT.postToApi n
-      --     return $
-      --       Either.either
-      --         (\err -> Left $ (n, err))
-      --         (\back -> Right $ Model.MCard n back)
-      --         back_ei
-      --   )
-      --   notesToBeTranslated
+      newCards_eis <- mapM
+        (\n -> do
+          back_ei <- ChatGPT.postToApi n
+          return $
+            Either.either
+              (\err -> Left $ (n, err))
+              (\back -> Right $ Model.MCard n back)
+              back_ei
+        )
+        notesToBeTranslated
 
-      -- let
-      --   translateSuccesses = Either.rights newCards_eis
-      --   translateFails = Either.lefts newCards_eis
       let
-        translateSuccesses = [Model.MCard "여기에" "Here"]
+        translateSuccesses = Either.rights newCards_eis
+        translateFails = Either.lefts newCards_eis
 
       -- Store successful translations
       -- putStrLn $ show newCards_eis
-      success <- mapM (Anki.storeNewNote anki) translateSuccesses
+      mapM_ (Anki.storeNewNote anki) translateSuccesses
 
       -- TODO: Store unsuccessful translatinos somewhere + log
       return ()

@@ -15,6 +15,7 @@ import           GHC.Generics
 import qualified Codec.Binary.Base91 as Base91
 import           Control.Applicative
 import           Control.Monad.Extra
+import           Data.Binary as Binary
 import qualified Data.ByteString as BS
 import           Data.Time.Clock.POSIX
 import           Data.Text (Text)
@@ -138,10 +139,11 @@ readLastCard s@AnkiStoreOpen{} = do
 
 -- | Returns a base91-encoded 64bit random number
 -- https://github.com/ankitects/anki/blob/9711044290dad315990f1281b148959068ec5de2/pylib/anki/utils.py#L128
+-- 2^64 is an overflow for 64 bit signed Int
 genGuid64 :: IO Text
 genGuid64 = do
-  rInt <- randomRIO (1, 2^64 - 1) :: IO Int
-  return . Base91.encode $ BS.pack [fromIntegral rInt]
+  rInt <- randomRIO (1, 2^63 - 1) :: IO Int
+  return . Base91.encode $ Binary.encode rInt
 
 storeNewNote :: AnkiStore -> Model.MCard -> IO()
 storeNewNote s@AnkiStoreClosed{} _ = do
