@@ -13,7 +13,6 @@ module Stores.Anki.Anki
 
 import           GHC.Generics
 import qualified Codec.Binary.Base91 as Base91
-import           Control.Applicative
 import           Control.Monad.Extra
 import           Data.Binary as Binary
 import qualified Data.ByteString as BS
@@ -21,10 +20,9 @@ import           Data.Time.Clock.POSIX
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
-import           Data.List
+import qualified Data.List
 import           Data.Maybe as Maybe
 import           Database.SQLite.Simple as SQL
-import           Database.SQLite.Simple.FromRow
 import           Text.Printf
 import           System.Random
 
@@ -96,7 +94,7 @@ close s@AnkiStoreClosed =
 -- - Already translated and stored (left)
 -- - To be translated (right)
 partition :: AnkiStore -> [Text] -> IO (Either String ([Text],[Text]))
-partition s@AnkiStoreClosed{} _ =
+partition AnkiStoreClosed{} _ =
   return $ Left "Anki store not open."
 partition s@AnkiStoreOpen{} rawNotes = do
   modelNotes <- readNotes s
@@ -109,7 +107,7 @@ partition s@AnkiStoreOpen{} rawNotes = do
 
 -- | Read all the Note models out from the database.
 readNotes :: AnkiStore -> IO [ModelNote]
-readNotes s@AnkiStoreClosed{} =
+readNotes AnkiStoreClosed{} =
   -- TODO: Throw / log error
   return []
 readNotes s@AnkiStoreOpen{} = do
@@ -118,7 +116,7 @@ readNotes s@AnkiStoreOpen{} = do
   return r
 
 readLastNote :: AnkiStore -> IO (Maybe ModelNote)
-readLastNote s@AnkiStoreClosed{} =
+readLastNote AnkiStoreClosed{} =
   -- TODO: Throw / log error
   return Nothing
 readLastNote s@AnkiStoreOpen{} = do
@@ -128,7 +126,7 @@ readLastNote s@AnkiStoreOpen{} = do
     (n:_) -> return $ Just n
 
 readLastCard :: AnkiStore -> IO (Maybe ModelCard)
-readLastCard s@AnkiStoreClosed{} =
+readLastCard AnkiStoreClosed{} =
   -- TODO: Throw / log error
   return Nothing
 readLastCard s@AnkiStoreOpen{} = do
@@ -146,7 +144,7 @@ genGuid64 = do
   return . Base91.encode $ Binary.encode rInt
 
 storeNewNote :: AnkiStore -> Model.MCard -> IO()
-storeNewNote s@AnkiStoreClosed{} _ = do
+storeNewNote AnkiStoreClosed{} _ = do
   -- TODO: Throw / log error
   putStrLn "[!] Anki store is closed!"
   return ()
@@ -155,7 +153,7 @@ storeNewNote s@AnkiStoreOpen{} newCard = do
   printf "[+] Storing card! %s\n" (Model.front newCard)
 
   lastNote_myb <- readLastNote s
-  mapM
+  mapM_
     (\lastNote -> do
       epochTime <- fmap round getPOSIXTime
       noteGuid <- genGuid64
